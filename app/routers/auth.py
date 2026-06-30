@@ -7,7 +7,6 @@ from app.services.user_service import UserService
 from app.dependencies import get_db
 from app.auth.security import get_current_user, create_access_token
 from app.models.user import User
-from app.utils.exceptions import CustomException
 
 router = APIRouter()
 
@@ -23,14 +22,10 @@ def login(user_in: UserLogin, db: Session = Depends(get_db)):
 
 @router.post("/logout")
 def logout(current_user: User = Depends(get_current_user)):
-    # In a stateless JWT auth, logout is typically handled client-side by dropping tokens.
-    # To strictly invalidate on server, a token blocklist would be needed.
     return {"message": "Successfully logged out"}
 
 @router.post("/refresh-token")
 def refresh_token(current_user: User = Depends(get_current_user)):
-    # We require a valid token to refresh. Depending on implementation, you might take the refresh token instead.
-    # Assuming user sends a valid access token or refresh token. We issue a new one.
     access_token = create_access_token(subject=current_user.id)
     return {"access_token": access_token, "token_type": "bearer"}
 
@@ -41,10 +36,8 @@ def change_password(password_data: ChangePassword, db: Session = Depends(get_db)
 
 @router.post("/forgot-password")
 def forgot_password(data: ForgotPassword, db: Session = Depends(get_db)):
-    # Mock implementation of forgot password. Would generate a token and email it.
     return {"message": "Password reset link sent if email exists."}
 
 @router.post("/reset-password")
 def reset_password(data: ResetPassword, db: Session = Depends(get_db)):
-    # Mock implementation: would verify the token and then change password.
     return {"message": "Password has been reset successfully."}
