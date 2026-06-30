@@ -1,3 +1,4 @@
+import uuid
 from sqlalchemy.orm import Session
 from app.models.user import User
 from app.schemas.user import UserCreate, UserUpdate
@@ -11,12 +12,13 @@ class UserRepository:
     def get_user_by_email(self, email: str) -> Optional[User]:
         return self.db.query(User).filter(User.email == email).first()
 
-    def get_user_by_id(self, user_id: int) -> Optional[User]:
+    def get_user_by_id(self, user_id: str) -> Optional[User]:
         return self.db.query(User).filter(User.id == user_id).first()
 
     def create_user(self, user_in: UserCreate) -> User:
         hashed_password = get_password_hash(user_in.password)
         db_user = User(
+            id=str(uuid.uuid4()),
             full_name=user_in.full_name,
             email=user_in.email,
             mobile_number=user_in.mobile_number,

@@ -1,7 +1,6 @@
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import BaseModel, EmailStr
 from typing import Optional
 from datetime import date, datetime
-import re
 
 class UserBase(BaseModel):
     full_name: str
@@ -12,23 +11,8 @@ class UserBase(BaseModel):
     address: Optional[str] = None
     bio: Optional[str] = None
 
-class UserCreate(BaseModel):
-    full_name: str
-    email: EmailStr
-    mobile_number: Optional[str] = None
-    password: str = Field(..., min_length=8)
-
-    @field_validator("password")
-    def password_validation(cls, v):
-        if len(v) < 8:
-            raise ValueError("Password must be at least 8 characters")
-        if not re.search(r"[A-Z]", v):
-            raise ValueError("Password must contain at least one uppercase letter")
-        if not re.search(r"[0-9]", v):
-            raise ValueError("Password must contain at least one number")
-        if not re.search(r"[@$!%*?&#]", v):
-            raise ValueError("Password must contain at least one special character")
-        return v
+class UserCreate(UserBase):
+    password: str
 
 class UserLogin(BaseModel):
     email: EmailStr
@@ -42,19 +26,8 @@ class UserUpdate(BaseModel):
     address: Optional[str] = None
     bio: Optional[str] = None
 
-class ChangePassword(BaseModel):
-    old_password: str
-    new_password: str = Field(..., min_length=8)
-
-class ForgotPassword(BaseModel):
-    email: EmailStr
-
-class ResetPassword(BaseModel):
-    token: str
-    new_password: str = Field(..., min_length=8)
-
 class UserResponse(UserBase):
-    id: int
+    id: str
     profile_image: Optional[str] = None
     is_active: bool
     is_verified: bool
@@ -67,5 +40,16 @@ class UserResponse(UserBase):
 class TokenResponse(BaseModel):
     access_token: str
     refresh_token: str
-    token_type: str
+    token_type: str = "bearer"
     user: UserResponse
+
+class ChangePassword(BaseModel):
+    old_password: str
+    new_password: str
+
+class ForgotPassword(BaseModel):
+    email: EmailStr
+
+class ResetPassword(BaseModel):
+    token: str
+    new_password: str
